@@ -1,22 +1,20 @@
 # d2p_core
 
-Python wrapper for the **D2P_Core** .NET library, designed for use inside **Rhino 8 / Grasshopper** via pythonnet.
+Python wrapper for the **D2P_Core** .NET library, designed for use inside **Rhino 8 / Grasshopper** or using **Rhino.Inside CPython** (both via pythonnet).
 
 ## Installation
 
-### Inside Rhino 8
+-> Package is not yet on PyPi yet, install from source!
 
-Open the Rhino Script Editor Python shell and run:
+### ~~Inside Rhino 8~~
 
-```
-pip install d2p_core
-```
+~~Open the Rhino Script Editor Python shell and run:~~
 
-Or from a system terminal targeting Rhino's bundled Python:
+~~`pip install d2p_core`~~
 
-```
-%USERPROFILE%\.rhinocode\py39-rh8\python.exe -m pip install d2p_core
-```
+~~Or from a system terminal targeting Rhino's bundled Python:~~
+
+~~`%USERPROFILE%\.rhinocode\py39-rh8\python.exe -m pip install d2p_core`~~
 
 ### From source (development)
 
