@@ -4,6 +4,11 @@ import System
 import System.Drawing as SD
 
 
+def _unwrap(obj):
+    """Extract the .NET object from a wrapper, or pass through."""
+    return getattr(obj, 'NetObj', obj)
+
+
 def to_net_color(value):
     """Convert (R, G, B[, A]) tuple to System.Drawing.Color."""
     if isinstance(value, SD.Color):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from D2P_Core.Utility import Instantiation as _NetInstantiation
 
-from d2p_core._type_utils import to_net_guids
+from d2p_core._type_utils import _unwrap, to_net_guids
 
 
 def instances_by_name(
@@ -11,7 +11,7 @@ def instances_by_name(
     """Find component instances matching a name."""
     return list(
         _NetInstantiation.InstancesByName(
-            name, settings, doc
+            name, _unwrap(settings), doc
         )
     )
 
@@ -21,7 +21,9 @@ def instances_by_name_from_component(
 ) -> list:
     """Find instances using a component's name and settings."""
     return list(
-        _NetInstantiation.InstancesByName(component, doc)
+        _NetInstantiation.InstancesByName(
+            _unwrap(component), doc
+        )
     )
 
 
@@ -31,7 +33,8 @@ def instances_by_type(
     """Find component instances by type ID with filter."""
     return list(
         _NetInstantiation.InstancesByType(
-            type_id, settings, filter_options, doc,
+            type_id, _unwrap(settings),
+            _unwrap(filter_options), doc,
         )
     )
 
@@ -42,7 +45,7 @@ def instances_from_objects(
     """Create component instances from RhinoObject collection."""
     return list(
         _NetInstantiation.InstancesFromObjects(
-            objects, settings, doc
+            objects, _unwrap(settings), doc
         )
     )
 
@@ -53,7 +56,8 @@ def instances_from_object_ids(
     """Create component instances from object GUIDs."""
     return list(
         _NetInstantiation.InstancesFromObjects(
-            to_net_guids(object_ids), settings, doc,
+            to_net_guids(object_ids),
+            _unwrap(settings), doc,
         )
     )
 
@@ -63,7 +67,7 @@ def instance_from_group(
 ):
     """Get a single component instance from a group index."""
     return _NetInstantiation.InstanceFromGroup(
-        group_index, settings, doc
+        group_index, _unwrap(settings), doc
     )
 
 
@@ -74,7 +78,7 @@ def instances_from_groups(
     return list(filter(None, [
         c
         for c in _NetInstantiation.InstancesFromGroups(
-            group_indices, settings, doc
+            group_indices, _unwrap(settings), doc
         )
     ]))
 
@@ -88,7 +92,7 @@ def get_parent_component(
     """
     result, parents_found = (
         _NetInstantiation.GetParentComponent(
-            component, doc
+            _unwrap(component), doc
         )
     )
     return result, int(parents_found)
@@ -100,7 +104,7 @@ def get_children(
     """Get child components, optionally filtered by type."""
     return list(
         _NetInstantiation.GetChildren(
-            component, filter_types, doc
+            _unwrap(component), filter_types, doc
         )
     )
 
@@ -111,7 +115,7 @@ def get_joints(
     """Get joint components, optionally filtered by type."""
     return list(
         _NetInstantiation.GetJoints(
-            component, filter_types, doc
+            _unwrap(component), filter_types, doc
         )
     )
 
@@ -122,7 +126,7 @@ def get_connected_components(
     """Get components connected via joints."""
     return list(
         _NetInstantiation.GetConnectedComponents(
-            component, type_filter, doc
+            _unwrap(component), type_filter, doc
         )
     )
 
@@ -130,5 +134,7 @@ def get_connected_components(
 def get_component_types(settings, doc=None) -> list:
     """Get all component types present in the document."""
     return list(
-        _NetInstantiation.GetComponentTypes(settings, doc)
+        _NetInstantiation.GetComponentTypes(
+            _unwrap(settings), doc
+        )
     )

@@ -5,12 +5,12 @@ from D2P_Core import Settings as _NetSettings
 from d2p_core._type_utils import to_net_color
 
 
-class Settings(_NetSettings):
-    """Python-friendly subclass of D2P_Core.Settings.
+class Settings:
+    """Python wrapper for D2P_Core.Settings.
 
     All PascalCase properties (RootLayerName, TypeDelimiter, etc.)
-    are inherited from the .NET base and work exactly as in D2P_Core.
-    The constructor accepts optional overrides for convenience.
+    are delegated to the underlying .NET object via __getattr__.
+    Access the raw .NET object via the .NetObj property.
     """
 
     def __init__(
@@ -26,31 +26,52 @@ class Settings(_NetSettings):
         CountDelimiter: str | None = None,
         JointDelimiter: str | None = None,
     ):
-        super().__init__()
+        self._net_obj = _NetSettings()
         if RootLayerName is not None:
-            self.RootLayerName = RootLayerName
+            self._net_obj.RootLayerName = RootLayerName
         if RootLayerColor is not None:
-            self.RootLayerColor = to_net_color(RootLayerColor)
+            self._net_obj.RootLayerColor = (
+                to_net_color(RootLayerColor)
+            )
         if DimensionStyleName is not None:
-            self.DimensionStyleName = DimensionStyleName
+            self._net_obj.DimensionStyleName = (
+                DimensionStyleName
+            )
         if TypeDelimiter is not None:
-            self.TypeDelimiter = TypeDelimiter
+            self._net_obj.TypeDelimiter = TypeDelimiter
         if LayerDelimiter is not None:
-            self.LayerDelimiter = LayerDelimiter
+            self._net_obj.LayerDelimiter = LayerDelimiter
         if NameDelimiter is not None:
-            self.NameDelimiter = NameDelimiter
+            self._net_obj.NameDelimiter = NameDelimiter
         if LayerDescriptionDelimiter is not None:
-            self.LayerDescriptionDelimiter = (
+            self._net_obj.LayerDescriptionDelimiter = (
                 LayerDescriptionDelimiter
             )
         if LayerNameDelimiter is not None:
-            self.LayerNameDelimiter = LayerNameDelimiter
+            self._net_obj.LayerNameDelimiter = (
+                LayerNameDelimiter
+            )
         if CountDelimiter is not None:
-            self.CountDelimiter = CountDelimiter
+            self._net_obj.CountDelimiter = CountDelimiter
         if JointDelimiter is not None:
-            self.JointDelimiter = JointDelimiter
+            self._net_obj.JointDelimiter = JointDelimiter
+
+    @property
+    def NetObj(self):
+        """The underlying D2P_Core.Settings .NET object."""
+        return self._net_obj
+
+    def __getattr__(self, name):
+        return getattr(self._net_obj, name)
+
+    def __setattr__(self, name, value):
+        if name == '_net_obj':
+            super().__setattr__(name, value)
+        else:
+            setattr(self._net_obj, name, value)
 
     def __repr__(self) -> str:
         return (
-            f'Settings(RootLayerName={self.RootLayerName!r})'
+            f'Settings('
+            f'RootLayerName={self.RootLayerName!r})'
         )

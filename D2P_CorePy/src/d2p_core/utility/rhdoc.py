@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from D2P_Core.Utility import RHDoc as _NetRHDoc
 
-from d2p_core._type_utils import from_net_guid
+from d2p_core._type_utils import _unwrap, from_net_guid
 
 
 def purge(doc) -> None:
@@ -20,7 +20,7 @@ def add_to_rhino_doc(
 ) -> str:
     """Add a component to a Rhino document."""
     result = _NetRHDoc.AddToRhinoDoc(
-        component, doc, replace_existing
+        _unwrap(component), doc, replace_existing
     )
     return from_net_guid(result)
 
@@ -30,10 +30,12 @@ def update_component_type_layer_colors(
 ) -> None:
     """Update the layer color of a component type root layer."""
     _NetRHDoc.UpdateComponentTypeLayerColors(
-        component_type, doc
+        _unwrap(component_type), doc
     )
 
 
 def update_component_sublayer_colors(component) -> None:
     """Update sublayer colors from the staging collection."""
-    _NetRHDoc.UpdateComponentSublayerColors(component)
+    _NetRHDoc.UpdateComponentSublayerColors(
+        _unwrap(component)
+    )

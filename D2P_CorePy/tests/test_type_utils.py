@@ -11,6 +11,7 @@ from System.Collections.Generic import (
 )
 
 from d2p_core._type_utils import (
+    _unwrap,
     to_net_color,
     from_net_color,
     to_net_guid,
@@ -19,6 +20,30 @@ from d2p_core._type_utils import (
     to_python_list,
     to_python_dict,
 )
+
+
+# --- _unwrap ---
+
+class _FakeWrapper:
+    @property
+    def NetObj(self):
+        return self._val
+
+    def __init__(self, val):
+        self._val = val
+
+
+def test_unwrap_wrapper():
+    """_unwrap extracts .NetObj from wrapper objects."""
+    inner = object()
+    w = _FakeWrapper(inner)
+    assert _unwrap(w) is inner
+
+
+def test_unwrap_passthrough():
+    """_unwrap passes non-wrapper objects through."""
+    raw = 'hello'
+    assert _unwrap(raw) is raw
 
 
 # --- color conversions ---
@@ -33,7 +58,7 @@ def test_color_rgb_roundtrip():
 
 
 def test_color_rgba_roundtrip():
-    """(R, G, B, A) -> .NET Color -> (R, G, B, A) roundtrip."""
+    """(R, G, B, A) -> .NET Color -> (R, G, B, A)."""
     net = to_net_color((100, 150, 200, 128))
     result = from_net_color(net)
     assert result == (100, 150, 200, 128)

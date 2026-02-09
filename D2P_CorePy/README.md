@@ -52,14 +52,12 @@ for comp in components:
 
 ### Core Classes
 
-All wrapper classes **inherit** from their .NET counterparts. This means:
+All wrapper classes use PascalCase property names matching D2P_Core.
+Properties are delegated to the underlying .NET object via `__getattr__`,
+so every .NET property is automatically available.
 
-- You can pass them directly to any .NET method that expects the base type.
-- All PascalCase properties from D2P_Core are available natively.
-- `isinstance(wrapper, NetType)` returns `True`.
-
-| Class | Inherits | Description |
-|-------|----------|-------------|
+| Class | Wraps | Description |
+|-------|-------|-------------|
 | `Component` | `D2P_Core.Component` | Main component — holds geometry, attributes, and layer collections |
 | `ComponentType` | `D2P_Core.ComponentType` | Defines component type metadata (type ID, name, label size, color) |
 | `ComponentMember` | `D2P_Core.ComponentMember` | Groups geometry with layer info and attributes for adding to a component |
@@ -67,19 +65,35 @@ All wrapper classes **inherit** from their .NET counterparts. This means:
 | `LayerInfo` | `D2P_Core.LayerInfo` | Layer name and color pair |
 | `FilterOptions` | `D2P_Core.FilterOptions` | Regex pattern and reverse flag for filtering |
 
-### Wrapper Transparency
+### Accessing .NET Properties
 
-Since wrappers inherit from the .NET types, they work seamlessly with D2P_Core methods:
+All D2P_Core PascalCase properties work directly:
 
 ```python
-from d2p_core import Component, ComponentType, Settings
-
 settings = Settings()
-ct = ComponentType('AB', 'AnchorBolt', settings)
+print(settings.RootLayerName)
+print(settings.TypeDelimiter)
+settings.RootLayerName = 'MyRoot'
 
-# The wrapper IS a D2P_Core.Component — pass it directly
 comp = Component(ct, 'MyPart', plane)
-utility.rhdoc.add_to_rhino_doc(comp)  # no .net_obj needed
+print(comp.Name, comp.TypeID, comp.Plane)
+```
+
+### Passing to .NET Methods
+
+The utility modules handle unwrapping automatically:
+
+```python
+from d2p_core import utility
+
+utility.rhdoc.add_to_rhino_doc(comp)
+utility.layers.create_root_layer(comp)
+```
+
+For direct .NET calls outside the utility wrappers, access `.NetObj`:
+
+```python
+some_dotnet_method(comp.NetObj)
 ```
 
 ### Utility Modules

@@ -5,7 +5,7 @@ import enum
 from D2P_Core.Utility import Objects as _NetObjects
 
 from d2p_core._type_utils import (
-    to_net_guid, from_net_guid, from_net_color,
+    _unwrap, to_net_guid, from_net_guid, from_net_color,
 )
 
 
@@ -25,7 +25,7 @@ def component_type_id_from_object(
     """Get the component type ID from a RhinoObject."""
     return str(
         _NetObjects.ComponentTypeIDFromObject(
-            obj, settings
+            obj, _unwrap(settings)
         )
     )
 
@@ -36,7 +36,7 @@ def component_type_name_from_object(
     """Get the component type name from a RhinoObject."""
     return str(
         _NetObjects.ComponentTypeNameFromObject(
-            obj, settings
+            obj, _unwrap(settings)
         )
     )
 
@@ -47,7 +47,7 @@ def component_type_layer_color_from_object(
     """Get the component type layer color from a RhinoObject."""
     return from_net_color(
         _NetObjects.ComponentTypeLayerColorFromObject(
-            obj, settings
+            obj, _unwrap(settings)
         )
     )
 
@@ -58,7 +58,8 @@ def objects_by_layer_typed(
     """Get typed geometry objects from a layer."""
     return list(
         _NetObjects.ObjectsByLayer[object](
-            layer_idx, component, _to_net_scope(scope)
+            layer_idx, _unwrap(component),
+            _to_net_scope(scope),
         )
     )
 
@@ -69,7 +70,8 @@ def objects_by_layer(
     """Get GeometryBase objects from a layer."""
     return list(
         _NetObjects.ObjectsByLayer(
-            layer_idx, component, _to_net_scope(scope)
+            layer_idx, _unwrap(component),
+            _to_net_scope(scope),
         )
     )
 
@@ -86,7 +88,7 @@ def object_ids_by_layer(
     return [
         from_net_guid(g)
         for g in _NetObjects.ObjectIDsByLayer(
-            component, layer_idx, doc
+            _unwrap(component), layer_idx, doc
         )
     ]
 
@@ -107,22 +109,25 @@ def objects_by_group_on_layer(
 
 def delete_objects(component, layer=None) -> int:
     """Delete objects belonging to a component."""
+    c = _unwrap(component)
     if layer is not None:
-        return int(
-            _NetObjects.DeleteObjects(component, layer)
-        )
-    return int(_NetObjects.DeleteObjects(component))
+        return int(_NetObjects.DeleteObjects(c, layer))
+    return int(_NetObjects.DeleteObjects(c))
 
 
 def delete_component(component) -> int:
     """Delete all objects of a component including its label."""
-    return int(_NetObjects.DeleteComponent(component))
+    return int(
+        _NetObjects.DeleteComponent(_unwrap(component))
+    )
 
 
 def delete_components(components) -> int:
     """Delete all objects of multiple components."""
     return int(
-        _NetObjects.DeleteComponents(list(components))
+        _NetObjects.DeleteComponents(
+            [_unwrap(c) for c in components]
+        )
     )
 
 

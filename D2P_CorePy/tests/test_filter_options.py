@@ -2,8 +2,6 @@
 
 from d2p_core import FilterOptions
 
-from D2P_Core import FilterOptions as _NetFilterOptions
-
 
 def test_default_construction():
     """Default FilterOptions should have empty pattern."""
@@ -14,7 +12,9 @@ def test_default_construction():
 
 def test_custom_construction():
     """Custom values should be set in constructor."""
-    fo = FilterOptions(RegexPattern='^AB', ReversePattern=True)
+    fo = FilterOptions(
+        RegexPattern='^AB', ReversePattern=True
+    )
     assert fo.RegexPattern == '^AB'
     assert fo.ReversePattern is True
 
@@ -33,15 +33,18 @@ def test_setter_reverse_pattern():
     assert fo.ReversePattern is True
 
 
-def test_isinstance_of_net_type():
-    """Wrapper instance should be an instance of the .NET base type."""
+def test_netobj_property_is_dotnet_type():
+    """.NetObj should be the raw .NET FilterOptions."""
+    from D2P_Core import FilterOptions as _NetFO
     fo = FilterOptions()
-    assert isinstance(fo, _NetFilterOptions)
+    assert isinstance(fo.NetObj, _NetFO)
 
 
 def test_repr():
     """__repr__ should contain pattern and reverse flag."""
-    fo = FilterOptions(RegexPattern='test', ReversePattern=True)
+    fo = FilterOptions(
+        RegexPattern='test', ReversePattern=True
+    )
     r = repr(fo)
     assert 'test' in r
     assert 'True' in r

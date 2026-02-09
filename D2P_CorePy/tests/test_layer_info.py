@@ -1,8 +1,7 @@
 """Tests for d2p_core.LayerInfo wrapper."""
 
 from d2p_core import LayerInfo
-
-from D2P_Core import LayerInfo as _NetLayerInfo
+from d2p_core._type_utils import from_net_color
 
 
 def test_default_construction():
@@ -15,22 +14,23 @@ def test_custom_construction():
     """Custom name and color should be set."""
     li = LayerInfo('Geometry', (255, 128, 0, 255))
     assert li.RawLayerName == 'Geometry'
-    c = li.LayerColor
-    assert (int(c.R), int(c.G), int(c.B), int(c.A)) == (255, 128, 0, 255)
+    c = from_net_color(li.LayerColor)
+    assert c == (255, 128, 0, 255)
 
 
 def test_rgb_color_construction():
     """RGB tuple (no alpha) should default alpha to 255."""
     li = LayerInfo('Layer1', (10, 20, 30))
-    c = li.LayerColor
-    assert (int(c.R), int(c.G), int(c.B)) == (10, 20, 30)
-    assert int(c.A) == 255
+    c = from_net_color(li.LayerColor)
+    assert (c[0], c[1], c[2]) == (10, 20, 30)
+    assert c[3] == 255
 
 
-def test_isinstance_of_net_type():
-    """Wrapper instance should be an instance of the .NET base type."""
+def test_netobj_property_is_dotnet_type():
+    """.NetObj should be the raw .NET LayerInfo."""
+    from D2P_Core import LayerInfo as _NetLI
     li = LayerInfo('Test', (0, 0, 0))
-    assert isinstance(li, _NetLayerInfo)
+    assert isinstance(li.NetObj, _NetLI)
 
 
 def test_repr():

@@ -3,7 +3,7 @@ from __future__ import annotations
 from D2P_Core.Utility import Layers as _NetLayers
 
 from d2p_core._type_utils import (
-    to_net_color, from_net_color,
+    _unwrap, to_net_color, from_net_color,
     to_net_guid, from_net_guid,
 )
 
@@ -13,7 +13,7 @@ from d2p_core._type_utils import (
 def find_layer(component, raw_layer_name: str) -> tuple:
     """Find a layer by name. Returns (layer, layers_found)."""
     layer, layers_found = _NetLayers.FindLayer(
-        component, raw_layer_name
+        _unwrap(component), raw_layer_name
     )
     return layer, int(layers_found)
 
@@ -30,7 +30,8 @@ def find_layer_index_by_full_path(
     """Find a layer index by traversing the full path."""
     return int(
         _NetLayers.FindLayerIndexByFullPath(
-            component, raw_layer_name, delimiter
+            _unwrap(component),
+            raw_layer_name, delimiter,
         )
     )
 
@@ -41,7 +42,7 @@ def find_layer_by_full_path(
 ):
     """Find a layer by traversing the full path."""
     return _NetLayers.FindLayerByFullPath(
-        component, raw_layer_name, delimiter
+        _unwrap(component), raw_layer_name, delimiter
     )
 
 
@@ -51,7 +52,7 @@ def find_all_existent_component_type_root_layers(
     """Find all existing component type root layers."""
     return list(
         _NetLayers.FindAllExistentComponentTypeRootLayers(
-            settings, doc
+            _unwrap(settings), doc
         )
     )
 
@@ -80,7 +81,9 @@ def find_layer_by_name(
 
 def create_staging_layers(component) -> list[int]:
     """Create staging layers for a component."""
-    return list(_NetLayers.CreateStagingLayers(component))
+    return list(
+        _NetLayers.CreateStagingLayers(_unwrap(component))
+    )
 
 
 def create_root_layer(
@@ -93,19 +96,20 @@ def create_root_layer(
         create_root_layer(component, doc=doc)
         create_root_layer('D2P', (220, 75, 58), doc)
     """
-    if isinstance(root_layer_name_or_component, str):
+    unwrapped = _unwrap(root_layer_name_or_component)
+    if isinstance(unwrapped, str):
         return _NetLayers.CreateRootLayer(
-            root_layer_name_or_component,
+            unwrapped,
             to_net_color(root_layer_color), doc,
         )
-    return _NetLayers.CreateRootLayer(
-        root_layer_name_or_component, doc
-    )
+    return _NetLayers.CreateRootLayer(unwrapped, doc)
 
 
 def create_component_type_layer(component):
     """Create the component type layer for a component."""
-    return _NetLayers.CreateComponentTypeLayer(component)
+    return _NetLayers.CreateComponentTypeLayer(
+        _unwrap(component)
+    )
 
 
 # --- Layer name composition / decomposition ---
@@ -119,9 +123,17 @@ def is_component_type_top_layer(
         is_component_type_top_layer(component, layer_name)
         is_component_type_top_layer(layer, settings)
     """
+    if isinstance(layer_name_or_settings, str):
+        return bool(
+            _NetLayers.IsComponentTypeTopLayer(
+                _unwrap(component_or_layer),
+                layer_name_or_settings,
+            )
+        )
     return bool(
         _NetLayers.IsComponentTypeTopLayer(
-            component_or_layer, layer_name_or_settings
+            component_or_layer,
+            _unwrap(layer_name_or_settings),
         )
     )
 
@@ -132,7 +144,7 @@ def compose_component_layer_name(
     """Compose a component sub-layer name."""
     return str(
         _NetLayers.ComposeComponentLayerName(
-            component, raw_layer_name
+            _unwrap(component), raw_layer_name
         )
     )
 
@@ -148,17 +160,16 @@ def compose_component_type_layer_name(
         compose_component_type_layer_name(component_type)
         compose_component_type_layer_name('AB', 'SomeType')
     """
-    if isinstance(component_type_or_type_id, str):
+    unwrapped = _unwrap(component_type_or_type_id)
+    if isinstance(unwrapped, str):
         return str(
             _NetLayers.ComposeComponentTypeLayerName(
-                component_type_or_type_id,
+                unwrapped,
                 description or '', delimiter,
             )
         )
     return str(
-        _NetLayers.ComposeComponentTypeLayerName(
-            component_type_or_type_id
-        )
+        _NetLayers.ComposeComponentTypeLayerName(unwrapped)
     )
 
 
@@ -179,7 +190,7 @@ def decompose_layer_name(
     """Extract the suffix portion of a layer name."""
     return str(
         _NetLayers.DecomposeLayerName(
-            component, layer_name
+            _unwrap(component), layer_name
         )
     )
 
@@ -194,7 +205,7 @@ def get_root_layer(doc, root_layer_name: str):
 def get_root_layer_id(component) -> str:
     """Get the root layer GUID as a string."""
     return from_net_guid(
-        _NetLayers.GetRootLayerID(component)
+        _NetLayers.GetRootLayerID(_unwrap(component))
     )
 
 
@@ -203,7 +214,7 @@ def get_component_type_root_layer_from_object(
 ):
     """Get the component type root layer from a RhinoObject."""
     return _NetLayers.GetComponentTypeRootLayer(
-        obj, settings, doc
+        obj, _unwrap(settings), doc
     )
 
 
@@ -212,14 +223,16 @@ def get_component_type_root_layer(
 ):
     """Get the component type root layer."""
     return _NetLayers.GetComponentTypeRootLayer(
-        component_type, doc
+        _unwrap(component_type), doc
     )
 
 
 def get_component_layer_id(component) -> str:
     """Get the component type layer GUID as a string."""
     return from_net_guid(
-        _NetLayers.GetComponentLayerID(component)
+        _NetLayers.GetComponentLayerID(
+            _unwrap(component)
+        )
     )
 
 
@@ -231,7 +244,7 @@ def get_component_type_id(
     """Extract the type ID from a component type layer."""
     return str(
         _NetLayers.GetComponentTypeID(
-            component_layer, settings
+            component_layer, _unwrap(settings)
         )
     )
 
@@ -242,7 +255,7 @@ def get_component_type_name(
     """Extract the type name from a layer or RhinoObject."""
     return str(
         _NetLayers.GetComponentTypeName(
-            component_layer_or_obj, settings
+            component_layer_or_obj, _unwrap(settings)
         )
     )
 
@@ -253,7 +266,7 @@ def get_component_type_label_size(
     """Get the label text height for a component type."""
     return float(
         _NetLayers.GetComponentTypeLabelSize(
-            component_layer, settings
+            component_layer, _unwrap(settings)
         )
     )
 
@@ -263,7 +276,7 @@ def get_component_type_settings(
 ):
     """Get the resolved Settings for a component type."""
     return _NetLayers.GetComponentTypeSettings(
-        component_layer_or_obj, settings
+        component_layer_or_obj, _unwrap(settings)
     )
 
 
@@ -277,7 +290,8 @@ def get_component_layers(
     """Get all layers belonging to a component type."""
     return list(
         _NetLayers.GetComponentLayers(
-            component_type, include_ancestor_layers, doc
+            _unwrap(component_type),
+            include_ancestor_layers, doc,
         )
     )
 

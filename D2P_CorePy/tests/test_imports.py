@@ -23,7 +23,7 @@ def test_version_defined():
 
 
 def test_public_api_classes():
-    """Verify all wrapper classes are importable from the top-level package."""
+    """Verify all wrapper classes are importable."""
     from d2p_core import (
         Component,
         ComponentMember,
@@ -33,51 +33,38 @@ def test_public_api_classes():
         LayerInfoComparer,
         Settings,
     )
-    for cls in (Component, ComponentMember, ComponentType, FilterOptions,
-                LayerInfo, LayerInfoComparer, Settings):
+    for cls in (Component, ComponentMember, ComponentType,
+                FilterOptions, LayerInfo, LayerInfoComparer,
+                Settings):
         assert callable(cls)
 
 
-def test_wrappers_inherit_from_net_types():
-    """Verify wrappers are subclasses of their .NET counterparts."""
-    from D2P_Core import FilterOptions as _NetFilterOptions
-    from D2P_Core import LayerInfo as _NetLayerInfo
-    from D2P_Core import LayerInfoComparer as _NetLayerInfoComparer
-    from D2P_Core import ComponentType as _NetComponentType
-    from D2P_Core import ComponentMember as _NetComponentMember
-    from D2P_Core import Component as _NetComponent
-    from D2P_Core import Settings as _NetSettings
-
-    from d2p_core import (
-        Component,
-        ComponentMember,
-        ComponentType,
-        FilterOptions,
-        LayerInfo,
-        LayerInfoComparer,
-        Settings,
-    )
-
-    assert issubclass(Settings, _NetSettings)
-    assert issubclass(FilterOptions, _NetFilterOptions)
-    assert issubclass(LayerInfo, _NetLayerInfo)
-    assert issubclass(LayerInfoComparer, _NetLayerInfoComparer)
-    assert issubclass(ComponentType, _NetComponentType)
-    assert issubclass(ComponentMember, _NetComponentMember)
-    assert issubclass(Component, _NetComponent)
+def test_wrappers_have_netobj_property():
+    """Verify wrapper instances expose .NetObj property."""
+    from d2p_core import FilterOptions, LayerInfo
+    fo = FilterOptions()
+    assert hasattr(fo, 'NetObj')
+    li = LayerInfo()
+    assert hasattr(li, 'NetObj')
 
 
 def test_utility_submodules():
     """Verify all utility submodules are importable."""
     from d2p_core import utility
-    for name in ('group', 'instantiation', 'io', 'layers', 'objects', 'rhdoc'):
+    for name in ('group', 'instantiation', 'io',
+                 'layers', 'objects', 'rhdoc'):
         mod = getattr(utility, name, None)
-        assert mod is not None, f'utility.{name} not found'
+        assert mod is not None, (
+            f'utility.{name} not found'
+        )
         assert hasattr(mod, '__name__')
 
 
 def test_layer_scope_enum():
-    """Verify the LayerScope enum is defined with expected values."""
+    """Verify the LayerScope enum is defined."""
     from d2p_core.utility.objects import LayerScope
     assert LayerScope.CURRENT_ONLY.value == 'CurrentOnly'
-    assert LayerScope.INCLUDE_CHILDREN.value == 'IncludeChildren'
+    assert (
+        LayerScope.INCLUDE_CHILDREN.value
+        == 'IncludeChildren'
+    )
