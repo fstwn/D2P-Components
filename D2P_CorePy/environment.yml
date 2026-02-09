@@ -1,0 +1,12 @@
+name: d2p_core_dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9.11
+  - pip
+  - pytest
+  - flake8
+  - pip:
+    - rhinoinside>=0.8.2
+    - -e .
