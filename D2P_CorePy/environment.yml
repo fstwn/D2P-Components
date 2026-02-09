@@ -9,4 +9,6 @@ dependencies:
   - flake8
   - pip:
     - rhinoinside>=0.8.2
+    - build
+    - twine
     - -e .
