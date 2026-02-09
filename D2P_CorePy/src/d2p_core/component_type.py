@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from d2p_core.settings import Settings
+import d2p_core.settings
 
 from D2P_Core import ComponentType as _NetComponentType
 
@@ -20,18 +20,18 @@ class ComponentType:
         self,
         TypeID: str,
         TypeName: str,
-        settings: Settings | None = None,
+        Settings: d2p_core.settings.Settings | None = None,
         LabelSize: float | None = None,
         LayerColor: tuple | None = None,
     ):
-        if not settings:
-            settings = Settings()
+        if not Settings:
+            Settings = d2p_core.settings.Settings()
         lc = (
             None if LayerColor is None
             else to_net_color(LayerColor)
         )
         self._net_obj = _NetComponentType(
-            TypeID, TypeName, _unwrap(settings),
+            TypeID, TypeName, _unwrap(Settings),
             LabelSize, lc,
         )
 
