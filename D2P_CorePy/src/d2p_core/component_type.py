@@ -6,6 +6,8 @@ from D2P_Core import ComponentType as _NetComponentType
 
 from d2p_core._type_utils import _unwrap, to_net_color
 
+import System.Drawing
+
 
 class ComponentType:
     """Python wrapper for D2P_Core.ComponentType.
@@ -22,7 +24,7 @@ class ComponentType:
         TypeName: str,
         Settings: d2p_core.settings.Settings | None = None,
         LabelSize: float | None = None,
-        LayerColor: tuple | None = None,
+        LayerColor: tuple | System.Drawing.Color | None = None,
     ):
         if not Settings:
             Settings = d2p_core.settings.Settings()

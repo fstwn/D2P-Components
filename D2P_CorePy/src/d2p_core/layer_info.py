@@ -5,6 +5,8 @@ from D2P_Core import LayerInfoComparer as _NetLayerInfoComparer
 
 from d2p_core._type_utils import _unwrap, to_net_color
 
+import System.Drawing
+
 
 class LayerInfo:
     """Python wrapper for D2P_Core.LayerInfo.
@@ -17,7 +19,7 @@ class LayerInfo:
     def __init__(
         self,
         RawLayerName: str = '',
-        LayerColor: tuple = (0, 0, 0, 255),
+        LayerColor: tuple | System.Drawing.Color = (0, 0, 0, 255),
     ):
         self._net_obj = _NetLayerInfo(
             RawLayerName, to_net_color(LayerColor)
