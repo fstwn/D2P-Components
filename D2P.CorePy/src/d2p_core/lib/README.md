@@ -1,0 +1,1 @@
+# PLACE D2P.Core.dll HERE!
