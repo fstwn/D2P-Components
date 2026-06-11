@@ -338,6 +338,12 @@ dist/
 build/
 .pytest_cache/
 
+# Python packaging (D2P.CorePy)
+D2P.CorePy/build/
+D2P.CorePy/dist/
+D2P.CorePy/*.egg-info/
+D2P.CorePy/src/*.egg-info/
+
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config
