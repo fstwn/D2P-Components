@@ -11,13 +11,13 @@ The package is not on PyPI yet. Install from this repository instead.
 The Python package lives in the `D2P.CorePy` subdirectory of the monorepo, so pip needs the `#subdirectory` fragment. Install from the `d2p_core` branch of the fork:
 
 ```bash
-pip install "git+https://github.com/fstwn/D2P-Components.git@d2p_core#subdirectory=D2P.CorePy"
+pip install "git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy"
 ```
 
 For development extras (`rhinoinside`, `pytest`, `flake8`):
 
 ```bash
-pip install "git+https://github.com/fstwn/D2P-Components.git@d2p_core#subdirectory=D2P.CorePy[dev]"
+pip install "git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy[dev]"
 ```
 
 `D2P.Core.dll` is bundled in `src/d2p_core/lib/` and included in every install. Inside Rhino/Grasshopper with the D2P plugin installed, the already-loaded assembly is reused and the bundled DLL is only a fallback.
