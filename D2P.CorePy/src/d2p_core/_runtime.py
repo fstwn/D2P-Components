@@ -81,7 +81,7 @@ def _load_rhino_inside():
         raise RuntimeError(
             'rhinoinside is required to use d2p_core '
             'outside of Rhino.\n'
-            'Install it with: pip install rhinoinside'
+            'Install it with: pip install d2p_core[standalone]'
         )
 
     rhino_dir = _find_rhino_system_dir()

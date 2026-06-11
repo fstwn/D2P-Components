@@ -1,6 +1,8 @@
-pythonnet>=3.0.0
 
 [dev]
 rhinoinside
 pytest
 flake8
+
+[standalone]
+rhinoinside
