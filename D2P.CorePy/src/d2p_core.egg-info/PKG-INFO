@@ -14,7 +14,8 @@ Classifier: Topic :: Scientific/Engineering
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: pythonnet>=3.0.0
+Provides-Extra: standalone
+Requires-Dist: rhinoinside; extra == "standalone"
 Provides-Extra: dev
 Requires-Dist: rhinoinside; extra == "dev"
 Requires-Dist: pytest; extra == "dev"
@@ -23,24 +24,32 @@ Dynamic: license-file
 
 # d2p_core
 
-Python wrapper for the **D2P.Core** .NET library, designed for use inside **Rhino 8 / Grasshopper** or using **Rhino.Inside CPython** (both via pythonnet).
+Python wrapper for the **D2P.Core** .NET library, designed for use inside **Rhino 8 / Grasshopper** or using **Rhino.Inside CPython** outside Rhino.
 
 ## Installation
 
 The package is not on PyPI yet. Install from this repository instead.
 
-### From GitHub (recommended)
+### Inside Rhino 8 / Grasshopper
 
-The Python package lives in the `D2P.CorePy` subdirectory of the monorepo, so pip needs the `#subdirectory` fragment. Install from the `d2p_core` branch of the fork:
+Rhino already provides the CLR (`pythonnet`). Install the wrapper with no extras so pip does not pull in a separate `pythonnet` copy:
+
+```python
+# r: git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy
+```
+
+Or from a shell:
 
 ```bash
 pip install "git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy"
 ```
 
-For development extras (`rhinoinside`, `pytest`, `flake8`):
+### Outside Rhino (standalone CPython)
+
+Use the `standalone` extra to install [`rhinoinside`](https://github.com/mcneel/rhino.inside-cpython), which bootstraps the Rhino runtime (and brings in `pythonnet` transitively):
 
 ```bash
-pip install "git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy[dev]"
+pip install "git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy[standalone]"
 ```
 
 `D2P.Core.dll` is bundled in `src/d2p_core/lib/` and included in every install. Inside Rhino/Grasshopper with the D2P plugin installed, the already-loaded assembly is reused and the bundled DLL is only a fallback.
@@ -52,7 +61,7 @@ cd D2P.CorePy
 pip install -e ".[dev]"
 ```
 
-The `dev` extra installs [`rhinoinside`](https://github.com/mcneel/rhino.inside-cpython) (required for testing outside Rhino), `pytest`, and `flake8`.
+The `dev` extra installs `rhinoinside`, `pytest`, and `flake8` for testing outside Rhino.
 
 ## Quick Start
 
@@ -164,7 +173,7 @@ RhinoCommon types (`Plane`, `GeometryBase`, `RhinoDoc`, etc.) are always passed 
 
 The package bundles `D2P.Core.dll`. On import, it checks whether the assembly is already loaded (e.g., via the D2P Grasshopper plugin). If so, it reuses the existing assembly and warns on version mismatch. The bundled DLL is only loaded as a fallback.
 
-When running **outside Rhino** (e.g. in a standalone script or test suite), the package uses [`rhinoinside`](https://pypi.org/project/rhinoinside/) to bootstrap a full Rhino runtime. Install it via `pip install rhinoinside` or use the `dev` extra.
+When running **outside Rhino** (e.g. in a standalone script or test suite), the package uses [`rhinoinside`](https://pypi.org/project/rhinoinside/) to bootstrap a full Rhino runtime. Install the `standalone` or `dev` extra, or `pip install rhinoinside` directly.
 
 ## License
 
