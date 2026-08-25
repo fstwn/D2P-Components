@@ -1,13 +1,15 @@
-﻿using D2P.Core.Components.Member;
-using D2P.Core.Extensions;
-using D2P.Core.Interfaces;
-using D2P.Core.Utility;
-using Rhino.DocObjects;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+
+using D2P.Core.Components.Member;
+using D2P.Core.Extensions;
+using D2P.Core.Interfaces;
+using D2P.Core.Utility;
+
+using Rhino.DocObjects;
+using Rhino.Geometry;
 
 namespace D2P.Core.Components {
     public abstract class ComponentBase : MemberCollection, IComponentBase {
@@ -33,7 +35,7 @@ namespace D2P.Core.Components {
 
         protected virtual void Init()
         {
-            Label = new MemberGeo<TextEntity>(this, "", LayerColor);
+            Label = new Member<TextEntity>(this, "", LayerColor);
         }
         public abstract IComponentBase Duplicate();
 
@@ -70,10 +72,16 @@ namespace D2P.Core.Components {
 
         public virtual bool Exists() => Settings.ActiveDoc.Objects.FindId(ID) != null;
         public virtual void Delete() => Objects.DeleteComponent(this);
-        public virtual void Commit()
+        public virtual void Commit(bool deleteExisting = true)
         {
-            var existing = Instantiation.InstancesByName(Name);
-            Objects.DeleteComponents(existing.Where(c => c.ID != ID));
+            if (deleteExisting) {
+                //var existing = Instantiation.InstancesByName(Name); // 800 ticks            
+                //Objects.DeleteComponents(existingObjects.Where(obj => obj.Id != ID));
+                var existingObjects = Objects.ObjectsByName(Name, ObjectType.AnyObject)
+                    .Where(obj => obj.GroupCount != 0 && !obj.GetGroupList().Contains(GroupIndex))
+                    .Select(obj => obj.Id);
+                Settings.ActiveDoc.Objects.Delete(existingObjects, true);
+            }
 
             if (!Exists()) {
                 create();
@@ -81,7 +89,7 @@ namespace D2P.Core.Components {
 
             AllMembers.SetComponent(this);
             foreach (var member in AllMembers.Where(m => !Members.IsComponentLabel(this, m))) {
-                member.Commit();
+                member.Commit(deleteExisting); // 600 ticks
             }
         }
         void create()
@@ -99,6 +107,13 @@ namespace D2P.Core.Components {
 
             var label = Label.Geometry.FirstOrDefault();
             ID = Settings.ActiveDoc.Objects.AddText(label, attributes);
+        }
+
+        public virtual void Cache()
+        {
+            foreach (var member in AllMembers) {
+                member.Cache();
+            }
         }
 
         public int CompareTo(object obj)
