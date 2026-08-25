@@ -5,6 +5,7 @@ from d2p_core._runtime import (
     PACKAGE_VERSION,
     is_running_in_rhino,
     _find_rhino_system_dir,
+    _missing_api,
 )
 
 
@@ -56,3 +57,42 @@ def test_rhinocommon_assembly_loaded():
         for asm in System.AppDomain.CurrentDomain.GetAssemblies()
     ]
     assert 'RhinoCommon' in names
+
+
+def test_assembly_info_reports_bundled_dll():
+    """Outside Rhino the bundled DLL should be the resolved assembly."""
+    info = d2p_core.assembly_info()
+    assert info['source'] == 'bundled'
+    assert info['path']
+    assert info['bundled_version'] is not None
+
+
+def _d2p_core_assembly():
+    import System
+    return next(
+        asm for asm in System.AppDomain.CurrentDomain.GetAssemblies()
+        if asm.GetName().Name == 'D2P.Core'
+    )
+
+
+def test_bundled_dll_satisfies_required_api():
+    """The bundled DLL must expose every API the wrapper binds to."""
+    assert _missing_api(_d2p_core_assembly()) == []
+
+
+def test_missing_api_detects_outdated_assembly(monkeypatch):
+    """The probe must name types and members an old assembly lacks.
+
+    MemberGeo is the pre-rename name of Member, so this mirrors what a
+    Grasshopper plugin older than this package would look like.
+    """
+    from d2p_core import _runtime
+    monkeypatch.setattr(_runtime, '_REQUIRED_API', (
+        ('D2P.Core.Components.Member.Member', None),
+        ('D2P.Core.Components.Member.MemberGeo', None),
+        ('D2P.Core.Components.Settings', 'NoSuchMethod'),
+    ))
+    assert _runtime._missing_api(_d2p_core_assembly()) == [
+        'D2P.Core.Components.Member.MemberGeo',
+        'D2P.Core.Components.Settings.NoSuchMethod',
+    ]

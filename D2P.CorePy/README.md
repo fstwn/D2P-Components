@@ -1,23 +1,23 @@
-# d2p_core
+# d2p-core-py
 
 Python wrapper for the **D2P.Core** .NET library, designed for use inside **Rhino 8 / Grasshopper** or using **Rhino.Inside CPython** outside Rhino.
 
-## Installation
+The distribution is named `d2p-core-py`; the import name is `d2p_core`.
 
-The package is not on PyPI yet. Install from this repository instead.
+## Installation
 
 ### Inside Rhino 8 / Grasshopper
 
-Rhino already provides the CLR (`pythonnet`). Install the wrapper with no extras so pip does not pull in a separate `pythonnet` copy:
+Rhino already provides the CLR (`pythonnet`), so install the package with no extras — it declares no runtime dependencies and will not pull a second `pythonnet` into Rhino's Python environment:
 
 ```python
-# r: git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy
+# r: d2p-core-py
 ```
 
 Or from a shell:
 
 ```bash
-pip install "git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy"
+pip install d2p-core-py
 ```
 
 ### Outside Rhino (standalone CPython)
@@ -25,10 +25,10 @@ pip install "git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdire
 Use the `standalone` extra to install [`rhinoinside`](https://github.com/mcneel/rhino.inside-cpython), which bootstraps the Rhino runtime (and brings in `pythonnet` transitively):
 
 ```bash
-pip install "git+https://github.com/fstwn/D2P-Components.git@d2p-core-py#subdirectory=D2P.CorePy[standalone]"
+pip install "d2p-core-py[standalone]"
 ```
 
-`D2P.Core.dll` is bundled in `src/d2p_core/lib/` and included in every install. Inside Rhino/Grasshopper with the D2P plugin installed, the already-loaded assembly is reused and the bundled DLL is only a fallback.
+`D2P.Core.dll` is bundled in `src/d2p_core/lib/` and included in every install, so the package works without the Grasshopper plugin. See [DLL Loading](#dll-loading).
 
 ### From a local clone (development)
 
@@ -37,7 +37,7 @@ cd D2P.CorePy
 pip install -e ".[dev]"
 ```
 
-The `dev` extra installs `rhinoinside`, `pytest`, and `flake8` for testing outside Rhino.
+The `dev` extra installs `rhinoinside`, `pytest`, `flake8`, `build`, and `twine`.
 
 ## Quick Start
 
@@ -72,10 +72,11 @@ so every .NET property is automatically available.
 | Class | Wraps | Description |
 |-------|-------|-------------|
 | `ComponentBase` | `D2P.Core.Interfaces.IComponentBase` | General wrapper for any component returned from utility functions |
+| `Component` | `D2P.Core.Components.Component` | Generic fallback component for documents with no registered type |
 | `GHComponent` | `D2P.Core.Platforms.GHComponent` | Grasshopper component — use to **create new** components |
 | `ComponentType` | `D2P.Core.Components.ComponentType` | Defines component type metadata (type ID, name, label size, color) |
 | `ComponentTable` | `D2P.Core.Components.ComponentTable` | Static registry mapping type IDs to .NET component types |
-| `MemberGeo` | `D2P.Core.Components.Member.MemberGeo` | Member geometry with layer info, attributes, and sub-members |
+| `Member` | `D2P.Core.Components.Member.Member` | Member geometry with layer info, attributes, and sub-members |
 | `Settings` | `D2P.Core.Components.Settings` | Static configuration: root layer, delimiters, dimension style, tolerances |
 | `LayerInfo` | `D2P.Core.Components.LayerInfo` | Layer name and color pair |
 | `FilterOptions` | `D2P.Core.FilterOptions` | Regex pattern and reverse flag for filtering |
@@ -123,7 +124,7 @@ Access via `d2p_core.utility.<module>`:
 | `io` | `D2P.Core.Utility.IO` | `export_with_headless`, `export_components_with_headless` |
 | `layers` | `D2P.Core.Utility.Layers` | `find_layer`, `create_root_layer`, `get_component_layers`, `compose_*`, `decompose_*` |
 | `members` | `D2P.Core.Utility.Members` | `find_members`, `get_all_member_geometries`, `member_from_layer`, `is_component_label` |
-| `objects` | `D2P.Core.Utility.Objects` | `objects_by_layer`, `delete_component`, `get_component_type_from_object` |
+| `objects` | `D2P.Core.Utility.Objects` | `objects_by_layer`, `objects_by_name`, `delete_component`, `get_component_type_from_object` |
 | `rhdoc` | `D2P.Core.Utility.RHDoc` | `purge`, `update_component_layer_colors` |
 
 ### Type Conversions
@@ -145,11 +146,42 @@ All parameters also accept the raw .NET types directly.
 
 RhinoCommon types (`Plane`, `GeometryBase`, `RhinoDoc`, etc.) are always passed through as-is.
 
+## Committing to the document
+
+`Commit()` takes a `delete_existing` flag, which removes objects of other components sharing the same name before adding the new ones. Pass `False` when committing into a headless document:
+
+```python
+comp.Commit()                      # replace existing objects
+comp.Commit(delete_existing=False) # add without deleting
+```
+
 ## DLL Loading
 
-The package bundles `D2P.Core.dll`. On import, it checks whether the assembly is already loaded (e.g., via the D2P Grasshopper plugin). If so, it reuses the existing assembly and warns on version mismatch. The bundled DLL is only loaded as a fallback.
+The package bundles `D2P.Core.dll`, so it works with or without the D2P Grasshopper plugin installed.
 
-When running **outside Rhino** (e.g. in a standalone script or test suite), the package uses [`rhinoinside`](https://pypi.org/project/rhinoinside/) to bootstrap a full Rhino runtime. Install the `standalone` or `dev` extra, or `pip install rhinoinside` directly.
+On import it looks for an already-loaded `D2P.Core` assembly:
+
+- **Found** (the Grasshopper plugin loaded it): that assembly is used. It cannot be replaced once loaded, so it always takes precedence over the bundled copy.
+- **Not found**: the bundled DLL is loaded from `d2p_core/lib/`.
+
+When a host assembly is used and it is not byte-identical to the bundled one, the package checks it:
+
+- Differing assembly versions produce a `UserWarning` naming both versions and the path the assembly was loaded from.
+- A host assembly missing API this wrapper needs raises a `RuntimeError` explaining that the installed plugin is older than the package. Set `D2P_ALLOW_INCOMPATIBLE_DLL=1` to downgrade it to a warning.
+
+`D2P.Core.csproj` currently does not stamp an assembly version — every build reports `0.0.0.0` — so version comparison is skipped until it does, and the API probe carries the check on its own.
+
+Inspect what was resolved with:
+
+```python
+import d2p_core
+print(d2p_core.assembly_info())
+# {'source': 'host', 'path': 'C:\\...\\D2P.GHPlugin\\D2P.Core.dll',
+#  'version': '0.0.0.0', 'bundled_path': '...', 'bundled_version': '0.0.0.0',
+#  'in_rhino': True, 'package_version': '0.1.0'}
+```
+
+When running **outside Rhino** (e.g. in a standalone script or test suite), the package uses [`rhinoinside`](https://pypi.org/project/rhinoinside/) to bootstrap a full Rhino runtime. Install the `standalone` or `dev` extra, or `pip install rhinoinside` directly. Set `D2P_RHINO_SYSTEM_PATH` if Rhino is not at the default location.
 
 ## License
 

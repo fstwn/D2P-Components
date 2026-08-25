@@ -54,7 +54,7 @@ class ComponentBase:
         'Geometry', 'Label',
         'AllMembers', 'DynamicMembers', 'StaticMembers',
         'SetMember', 'SetMembers', 'FindMember', 'FindMembers',
-        'Transform', 'Exists', 'Delete', 'Commit', 'Duplicate',
+        'Transform', 'Exists', 'Delete', 'Commit', 'Cache', 'Duplicate',
         'CompareTo',
     ]
 
@@ -81,6 +81,16 @@ class ComponentBase:
     def NetObj(self):
         """The underlying .NET IComponentBase object."""
         return self._net_obj
+
+    def Commit(self, delete_existing: bool = True) -> None:
+        """Write this component and its members to the active document.
+
+        Args:
+            delete_existing: Delete objects of other components sharing this
+                name before adding the new ones. Pass False when committing
+                into a headless document.
+        """
+        self._net_obj.Commit(bool(delete_existing))
 
     def __getattr__(self, name):
         attr = getattr(self._net_obj, name)

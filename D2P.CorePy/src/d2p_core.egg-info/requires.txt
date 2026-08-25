@@ -1,8 +1,0 @@
-
-[dev]
-rhinoinside
-pytest
-flake8
-
-[standalone]
-rhinoinside

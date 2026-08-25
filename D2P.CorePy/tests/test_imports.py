@@ -16,17 +16,18 @@ def test_dll_bundled():
 # --- integration tests (require CLR + RhinoCommon) ---
 
 def test_version_defined():
-    """Verify __version__ is set and matches the DLL expectation."""
+    """Verify __version__ is set."""
     import d2p_core
     assert hasattr(d2p_core, '__version__')
-    assert d2p_core.__version__ == '1.0.2'
+    assert d2p_core.__version__
 
 
 def test_public_api_classes():
     """Verify all wrapper classes are importable."""
     from d2p_core import (
+        Component,
         GHComponent,
-        MemberGeo,
+        Member,
         ComponentType,
         ComponentTable,
         FilterOptions,
@@ -34,7 +35,7 @@ def test_public_api_classes():
         LayerInfoComparer,
         Settings,
     )
-    for cls in (GHComponent, MemberGeo, ComponentType,
+    for cls in (Component, GHComponent, Member, ComponentType,
                 FilterOptions, LayerInfo, LayerInfoComparer):
         assert callable(cls)
     assert hasattr(ComponentTable, 'Keys')
@@ -68,3 +69,10 @@ def test_settings_is_static():
     import pytest
     with pytest.raises(TypeError):
         Settings()
+
+
+def test_settings_exposes_new_api():
+    """Settings should expose the angular dimension style and Update()."""
+    from d2p_core import Settings
+    assert isinstance(Settings.AngularDimensionStyleName, str)
+    assert callable(Settings.Update)

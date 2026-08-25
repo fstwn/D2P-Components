@@ -1,1 +1,6 @@
-recursive-include src/d2p_core/lib *.dll
+include LICENSE
+include README.md
+include src/d2p_core/py.typed
+recursive-include src/d2p_core/lib *.dll *.md
+recursive-include tests *.py
+prune grasshopper_development

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from D2P.Core.Components.Member import MemberGeo as _NetMemberGeo
+from D2P.Core.Components.Member import Member as _NetMember
 
 from d2p_core._type_utils import _unwrap, to_net_color
 from d2p_core._component_base import _auto_unwrap
@@ -8,8 +8,8 @@ from d2p_core._component_base import _auto_unwrap
 import System.Drawing
 
 
-class MemberGeo:
-    """Python wrapper for D2P.Core.Components.Member.MemberGeo.
+class Member:
+    """Python wrapper for D2P.Core.Components.Member.Member.
 
     All .NET properties and methods are delegated via __getattr__.
     Wrapper arguments (objects with .NetObj) are auto-unwrapped
@@ -26,7 +26,7 @@ class MemberGeo:
         'ParentMember', 'AllMembers', 'DynamicMembers', 'StaticMembers',
         'SetObject', 'SetObjects',
         'SetMember', 'SetMembers', 'FindMember', 'FindMembers',
-        'Commit', 'Exists', 'Delete', 'Duplicate',
+        'Commit', 'Cache', 'Exists', 'Delete', 'Duplicate',
     ]
 
     def __init__(
@@ -35,12 +35,12 @@ class MemberGeo:
         layer_info_or_name,
         layer_color: tuple | System.Drawing.Color | None = None,
     ):
-        """Create a MemberGeo.
+        """Create a Member.
 
         Can be called as::
 
-            MemberGeo(component, layer_info)
-            MemberGeo(component, 'RawLayerName', (R, G, B))
+            Member(component, layer_info)
+            Member(component, 'RawLayerName', (R, G, B))
 
         Args:
             component: IComponentBase or wrapper.
@@ -49,19 +49,19 @@ class MemberGeo:
         """
         c = _unwrap(component)
         if isinstance(layer_info_or_name, str):
-            net_obj = _NetMemberGeo(
+            net_obj = _NetMember(
                 c, layer_info_or_name,
                 to_net_color(layer_color),
             )
         else:
-            net_obj = _NetMemberGeo(
+            net_obj = _NetMember(
                 c, _unwrap(layer_info_or_name),
             )
         object.__setattr__(self, '_net_obj', net_obj)
 
     @classmethod
     def _wrap(cls, net_obj):
-        """Wrap an existing .NET MemberGeo / IMember instance."""
+        """Wrap an existing .NET Member / IMember instance."""
         if net_obj is None:
             return None
         inst = cls.__new__(cls)
@@ -70,8 +70,17 @@ class MemberGeo:
 
     @property
     def NetObj(self):
-        """The underlying D2P.Core.Components.Member.MemberGeo .NET object."""
+        """The underlying D2P.Core.Components.Member.Member .NET object."""
         return self._net_obj
+
+    def Commit(self, delete_existing: bool = True) -> None:
+        """Write this member's objects to the active document.
+
+        Args:
+            delete_existing: Delete objects of the same component that are
+                not part of this commit before adding the new ones.
+        """
+        self._net_obj.Commit(bool(delete_existing))
 
     def __getattr__(self, name):
         attr = getattr(self._net_obj, name)
@@ -91,6 +100,6 @@ class MemberGeo:
     def __repr__(self) -> str:
         li = self.LayerInfo
         return (
-            f'MemberGeo('
+            f'Member('
             f'LayerInfo={li.RawLayerName!r})'
         )

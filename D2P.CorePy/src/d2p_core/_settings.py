@@ -47,6 +47,14 @@ class _SettingsMeta(type):
     def DimensionStyle(cls):
         return _NetSettings.DimensionStyle
 
+    @property
+    def AngularDimensionStyleName(cls) -> str:
+        return str(_NetSettings.AngularDimensionStyleName)
+
+    @property
+    def AngularDimensionStyle(cls):
+        return _NetSettings.AngularDimensionStyle
+
     # --- Tolerance ---
 
     @property
@@ -114,6 +122,12 @@ class _SettingsMeta(type):
     @JointDelimiter.setter
     def JointDelimiter(cls, value: str):
         _NetSettings.JointDelimiter = value
+
+    # --- Methods ---
+
+    def Update(cls, doc):
+        """Point the active document at ``doc``."""
+        _NetSettings.Update(doc)
 
 
 class Settings(metaclass=_SettingsMeta):
