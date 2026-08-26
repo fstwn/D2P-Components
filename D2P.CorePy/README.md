@@ -39,6 +39,9 @@ pip install -e ".[dev]"
 
 The `dev` extra installs `rhinoinside`, `pytest`, `flake8`, `build`, and `twine`.
 
+For development setup, refreshing the bundled DLL, running tests, and
+publishing to PyPI, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Quick Start
 
 ```python
