@@ -1,13 +1,29 @@
 from __future__ import annotations
 
 from D2P.Core.Utility import Objects as _NetObjects
+from Rhino.DocObjects import ObjectType as _ObjectType
 
-from d2p_core._type_utils import _unwrap, to_net_guid, from_net_guid
+from d2p_core._type_utils import _unwrap, to_net_guid
 
 
 def get_component_type_from_object(obj):
     """Get the ComponentType from a RhinoObject."""
     return _NetObjects.GetComponentTypeFromObject(obj)
+
+
+# --- Objects By Name ---
+
+def objects_by_name(name: str, object_type=None) -> list:
+    """Get RhinoObjects in the active document by object name.
+
+    Args:
+        name: Name filter, as stored in the object attributes.
+        object_type: Rhino.DocObjects.ObjectType to restrict the search to.
+            Defaults to any object type.
+    """
+    if object_type is None:
+        object_type = _ObjectType.AnyObject
+    return list(_NetObjects.ObjectsByName(name, object_type))
 
 
 # --- Objects By Layer ---
@@ -46,7 +62,9 @@ def objects_by_group(group_idx: int) -> list:
 
 # --- Delete ---
 
-def delete_objects(component_or_member, layer=None, recursive: bool = False) -> int:
+def delete_objects(
+    component_or_member, layer=None, recursive: bool = False,
+) -> int:
     """Delete objects belonging to a component or member.
 
     Can be called as::

@@ -1,25 +1,55 @@
 [build-system]
-requires = ['setuptools>=61.0', 'wheel']
+requires = ['setuptools>=77.0', 'wheel']
 build-backend = 'setuptools.build_meta'
 
 [project]
-name = 'd2p_core'
-version = '1.0.2'
-description = 'Python wrapper for D2P.Core .NET library by Design-to-production, designed for Rhino 8 / Grasshopper'
+name = 'd2p-core-py'
+version = '0.1.0'
+description = 'Python wrapper for the D2P.Core .NET library by Design-to-Production, for Rhino 8 / Grasshopper'
 readme = 'README.md'
-license = {text = 'MIT'}
+license = 'MIT'
+license-files = ['LICENSE']
 requires-python = '>=3.9'
 authors = [
-    {name = 'Max Benjamin Eschenbach'},
+    {name = 'Design-to-Production GmbH'},
+    {name = 'Max Benjamin Eschenbach', email = 'max.eschenbach@tu-darmstadt.de'},
+]
+maintainers = [
+    {name = 'Max Benjamin Eschenbach', email = 'max.eschenbach@tu-darmstadt.de'},
+    {name = 'Design-to-Production GmbH'},
+]
+keywords = [
+    'rhino',
+    'rhino3d',
+    'grasshopper',
+    'rhinocommon',
+    'cad',
+    'parametric-design',
+    'fabrication',
+    'd2p',
 ]
 classifiers = [
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
-    'License :: OSI Approved :: MIT License',
+    'Intended Audience :: Manufacturing',
+    'Intended Audience :: Science/Research',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: MacOS',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Topic :: Multimedia :: Graphics :: 3D Modeling',
     'Topic :: Scientific/Engineering',
 ]
+
+# pythonnet is deliberately absent: inside Rhino 8 the CLR is already
+# provided by the host, and outside Rhino it arrives transitively via
+# rhinoinside. Declaring it here would install a second copy into Rhino's
+# Python environment.
+dependencies = []
 
 [project.optional-dependencies]
 standalone = [
@@ -29,16 +59,20 @@ dev = [
     'rhinoinside',
     'pytest',
     'flake8',
+    'build',
+    'twine',
 ]
 
 [project.urls]
+Homepage = 'https://github.com/design-to-production/D2P-Components'
 Repository = 'https://github.com/design-to-production/D2P-Components'
+Issues = 'https://github.com/design-to-production/D2P-Components/issues'
 
 [tool.setuptools.packages.find]
 where = ['src']
 
 [tool.setuptools.package-data]
-d2p_core = ['lib/*.dll']
+d2p_core = ['lib/*.dll', 'py.typed']
 
 [tool.setuptools]
 zip-safe = false

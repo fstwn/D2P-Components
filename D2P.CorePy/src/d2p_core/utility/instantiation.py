@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from D2P.Core.Components import Settings as _NetSettings
 from D2P.Core.Utility import Instantiation as _NetInstantiation
 
-from d2p_core._type_utils import _unwrap, to_net_guids
+from d2p_core._type_utils import _unwrap, to_net_guid
 
 
 def instances_by_name(name: str) -> list:
@@ -32,9 +33,14 @@ def instances_from_objects(objects) -> list:
 
 def instances_from_object_ids(object_ids) -> list:
     """Create component instances from object GUIDs."""
+    # The .NET IEnumerable<Guid> overload of InstancesFromObjects calls
+    # itself and overflows the stack, so resolve the ids here and use the
+    # RhinoObject overload instead.
+    doc_objects = _NetSettings.ActiveDoc.Objects
+    objects = [doc_objects.FindId(to_net_guid(i)) for i in object_ids]
     return list(
         _NetInstantiation.InstancesFromObjects(
-            to_net_guids(object_ids),
+            [obj for obj in objects if obj is not None],
         )
     )
 
