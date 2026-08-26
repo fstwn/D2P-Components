@@ -4,15 +4,15 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'd2p-core-py'
-version = '0.1.0'
+version = '0.1.1'
 description = 'Python wrapper for the D2P.Core .NET library by Design-to-Production, for Rhino 8 / Grasshopper'
 readme = 'README.md'
 license = 'MIT'
 license-files = ['LICENSE']
 requires-python = '>=3.9'
 authors = [
-    {name = 'Design-to-Production GmbH'},
     {name = 'Max Benjamin Eschenbach', email = 'max.eschenbach@tu-darmstadt.de'},
+    {name = 'Design-to-Production GmbH'},
 ]
 maintainers = [
     {name = 'Max Benjamin Eschenbach', email = 'max.eschenbach@tu-darmstadt.de'},
